@@ -15,54 +15,65 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class MyHttpServer{
+    static HttpServer server = null;
+
     static Arguments parseArgs(String[] args) {
         int portIndex=-1;
         int resIndex=-1;
         int dirIndex=-1;
+        int thIndex=-1;
 
         //the following code will need to successfully return the correct indexes of the 3 strings in the array.
         for (int i = 0; i < args.length; i++){
             if ("--port".equals(args[i])) portIndex = i;
             if ("--responses".equals(args[i])) resIndex = i;
             if ("--directory".equals(args[i])) dirIndex = i;
+            if ("--threads".equals(args[i])) thIndex = i;
         }
         //if you come out of that loop and indexes are still -1, then somethings wrong
         if (portIndex == -1 || dirIndex == -1) {
             System.out.println("Missing Arguments");
             throw new AssertionError();
         }
+        if(thIndex==-1){
+            System.out.println("Threads argument empty, No. of threads set as default (1)");
+        }
 
         //retrieve arguments correctly
         int port=-1;
         int res=-1;
         String dir=null;
+        int noofThreads=1; //default amount is 1
 
         //following code retrieves arguments
         port=Integer.parseInt(args[portIndex+1]);
         res=Integer.parseInt(args[resIndex+1]);
         dir=args[dirIndex+1];
+        if(thIndex!=-1) noofThreads=Integer.parseInt(args[thIndex+1]);
 
-        return new Arguments(port,dir,res);
+        return new Arguments(port,dir,res,noofThreads);
     }
-    static void serverInit(HttpServer _server, Arguments _arguments){
+    static void serverInit(Arguments _arguments){
         try {
-            _server = HttpServer.create(new InetSocketAddress("localhost", _arguments.getPort()), 0);
+            server = HttpServer.create(new InetSocketAddress("localhost", _arguments.getPort()), 0);
         }catch(IllegalArgumentException | IOException e) {
             System.out.println("Port number illegal, please try again.");
             System.exit(0);
         }
 
-        _server.createContext(_arguments.getDirectory(), new MyHttpHandler()); //single slash means the context is right in the localhost location
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(_arguments.getResponses());
-        _server.setExecutor(threadPoolExecutor);
-        _server.start();
+        server.createContext(_arguments.getDirectory(), new MyHttpHandler()); //single slash means the context is right in the localhost location
+        ThreadPoolExecutor threadPoolExecutor =
+                (ThreadPoolExecutor) Executors.newFixedThreadPool(_arguments.getNoofThreads());
+        server.setExecutor(threadPoolExecutor);
+        server.start();
     }
     public static void main(String[] args) {
         Arguments arguments = parseArgs(args);
 
         System.out.println("Parameters provided as: port: "+arguments.getPort()+"\n"
-                + "Responses (Threads):" + arguments.getResponses() + "\n"
-                +"Directory: " +arguments.getDirectory()+"\n");
+                + "Responses:" + arguments.getResponses() + "\n"
+                +"Directory: " +arguments.getDirectory()+"\n" +
+                "No. of Threads: "+arguments.getNoofThreads());
         System.out.println("To test server locally, enter the following in your browser window:");
         System.out.println("http://localhost:"+arguments.getPort()+arguments.getDirectory());
         System.out.println("You can only load files under "+arguments.getDirectory());
@@ -72,8 +83,7 @@ public class MyHttpServer{
         System.out.println("To allow access to the whole directory, please enter '/' on the directory argument.");
         System.out.println(" ... ");
 
-        HttpServer server = null;
-        serverInit(server,arguments);
+        serverInit(arguments);
 
         System.out.println("Waiting for http request...");
         System.out.println("To quit, ^C (for Mac/Linux) or Ctrl+Alt+Del (for Windows");
@@ -88,12 +98,14 @@ class MyHttpHandler implements HttpHandler {
         String mthGet = "GET";
         if(mthGet.equals(_httpEx.getRequestMethod())){
             requestParameterValue = _httpEx.getRequestURI().toString();
-            System.out.println("Client is requesting ..."+requestParameterValue);
+            //System.out.println("Client is requesting ..."+requestParameterValue);//comment this out so that
+            // threads don't bottleneck in System.out
         }
-        System.out.println("Debug: "+_httpEx);
+        //System.out.println("Debug: "+_httpEx); //comment this out so that threads don't bottleneck in System.out
         handleResponse(_httpEx,requestParameterValue);
     }
 
+    //this method will get shared by the threads
     private void handleResponse(HttpExchange _httpEx, String _reqParamVal) throws IOException{
 
         Headers h = _httpEx.getResponseHeaders();
@@ -151,8 +163,9 @@ class Arguments {
     private final int port;
     private final String directory;
     private final int responses;
+    private final int noofThreads;
 
-    Arguments(int _port, String _directory, int _responses){
+    Arguments(int _port, String _directory, int _responses, int _noOfThreads){
         if (_port < 0 || _port > 65536) {
             System.out.println("Port number out of range (0-65536)");
             throw new AssertionError();
@@ -161,12 +174,17 @@ class Arguments {
             System.out.println("Invalid directory argument. Cannot be empty. Start path with front-slash'/'");
             throw new AssertionError();
         }
+        if(_noOfThreads<=0){
+            System.out.println("Invalid no. of threads argument. Value must be more than zero.");
+        }
         port = _port;
         directory = _directory;
         responses = _responses;
+        noofThreads = _noOfThreads;
     }
 
     int getPort(){return port;}
     String getDirectory(){ return directory;}
     int getResponses(){return responses; }
+    int getNoofThreads(){ return noofThreads;}
 }
