@@ -121,7 +121,7 @@ class MyHttpHandler implements HttpHandler {
             while (scanner.hasNextLine()) {
                 requestedContent+=scanner.nextLine() + "\n";
             }
-            System.out.println("Debug(requestedContent): "+requestedContent);
+            //System.out.println("Debug(requestedContent): "+requestedContent);
             status = "200 OK";
 
             h.add("Content-Type","text/html"); //this tells the client to open the file and not read it as text file
@@ -165,16 +165,16 @@ class Arguments {
     private final int responses;
     private final int noofThreads;
 
-    Arguments(int _port, String _directory, int _responses, int _noOfThreads){
+    Arguments(int _port, String _directory, int _responses, int _noOfThreads) {
         if (_port < 0 || _port > 65536) {
             System.out.println("Port number out of range (0-65536)");
             throw new AssertionError();
         }
-        if(_directory == null || _directory.equals("") || !_directory.contains("/")) {
+        if (_directory == null || _directory.equals("") || !_directory.contains("/")) {
             System.out.println("Invalid directory argument. Cannot be empty. Start path with front-slash'/'");
             throw new AssertionError();
         }
-        if(_noOfThreads<=0){
+        if (_noOfThreads <= 0) {
             System.out.println("Invalid no. of threads argument. Value must be more than zero.");
         }
         port = _port;
