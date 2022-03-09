@@ -36,7 +36,7 @@ public class MyHttpServer{
             throw new AssertionError();
         }
         if(thIndex==-1){
-            System.out.println("Threads argument empty, No. of threads set as default (1)");
+            System.out.println("Threads argument empty or bad argument, No. of threads set as default (1)");
         }
 
         //retrieve arguments correctly

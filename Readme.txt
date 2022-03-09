@@ -1,7 +1,7 @@
 A single-threaded web server in Java.
 
 Command-line arguments
-`--port <#>`: port number to listen on (e.g.: 8080)
+`--port <#>`: port number to listen on (e.g.: 8081)
 `--directory <dir>`: where to serve files from (e.g.: /tmp)
 `--responses <#>`: how many responses to make (0 = no limit)
 '--threads <#>': how many threads to use (default is 1 if nothing entered)
@@ -23,7 +23,7 @@ javac -d out/production/Concurrent01 -cp out/production/Concurrent01:lib/junit-4
     
 
 Running
-  java -cp out/production/Concurrent01 MyHttpServer --port 8080 --responses 1 --directory /tmp --thread 10 
+  java -cp out/production/Concurrent01 MyHttpServer --port 8081 --responses 1 --directory /tmp --threads 10 
 If your browser says "Server dropped connection unexpectedly", try running the server on a different port number.
 
 The /tmp/hello.html file looks like:
