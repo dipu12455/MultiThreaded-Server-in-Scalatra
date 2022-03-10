@@ -1,3 +1,7 @@
+DESCRIPTION:
+The most amount of request per second (RPS) value is between 10-20 threads. The least amount of RPS is over 75. There is a spreadsheet file that can be referred to, to see a more details benchmark results.
+The following shows benchmark result with one thread and then with multiple threads.
+
 RESULT WITH 1 THREAD
 
 diptanshugiri1@DJMacs-MacBook-Pro ~ % ab -n 1000 -c 10 http://127.0.0.1:8081/

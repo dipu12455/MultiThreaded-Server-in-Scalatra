@@ -41,9 +41,9 @@ Point your browser at http://localhost:8080/hello.html or other URIs like http:/
 Running with thread (Bench results) (Details please see Thread-benchresults.txt)
 Server can handle at most threads of 92. Server works best with 70 threads.
 Request per second	->	no. of threads
-6435.53			->	1
-8044.21			->	92
-8087.74			->	70
+1951.29			->	1
+2083.03			->	50
+2060.72			->	92
 
 ### Testing
    java -ea -cp out/production/Concurrent01:lib/junit-4.13.1.jar:lib/hamcrest-core-1.3.jar org.junit.runner.JUnitCore MyHttpServerTest
