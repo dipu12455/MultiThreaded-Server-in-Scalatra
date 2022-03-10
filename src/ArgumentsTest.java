@@ -31,5 +31,11 @@ public class ArgumentsTest {
         assertEquals(arguments.getResponses(), 1);
         assertEquals(arguments.getNoofThreads(),10);
     }
+
+    @Test(expected = AssertionError.class)
+    public void testNegativeThreadNumber(){
+        new Arguments(8080,"/tmp",1,-1);
+        new Arguments(8080,"/tmp",1,0);
+    }
 }
 

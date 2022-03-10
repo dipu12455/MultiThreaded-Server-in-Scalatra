@@ -91,7 +91,7 @@ public class MyHttpServer{
 
 }
 
-class MyHttpHandler implements HttpHandler {
+class MyHttpHandler implements HttpHandler { //each thread gets its own class, so this is thread-safe
     @Override
     public void handle(HttpExchange _httpEx) throws IOException{
         String requestParameterValue = null;
@@ -102,10 +102,11 @@ class MyHttpHandler implements HttpHandler {
             // threads don't bottleneck in System.out
         }
         //System.out.println("Debug: "+_httpEx); //comment this out so that threads don't bottleneck in System.out
-        handleResponse(_httpEx,requestParameterValue);
+        handleResponse(_httpEx,requestParameterValue); //_httpEx variable passes through each of the threads,
+        // but it is not modified in any way until this method is reached. So, work on making this method thread-safe.
     }
 
-    //this method will get shared by the threads
+    //this method is not per thread, but one method that all threads will access turn by turn
     private void handleResponse(HttpExchange _httpEx, String _reqParamVal) throws IOException{
 
         Headers h = _httpEx.getResponseHeaders();
@@ -176,6 +177,7 @@ class Arguments {
         }
         if (_noOfThreads <= 0) {
             System.out.println("Invalid no. of threads argument. Value must be more than zero.");
+            throw new AssertionError();
         }
         port = _port;
         directory = _directory;
